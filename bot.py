@@ -20,7 +20,6 @@ class Guideon(commands.Bot):
     def __init__(self, intents, *args, **kwargs):
         super().__init__(command_prefix="!", intents=intents, *args, **kwargs)
         self.guild = None
-        # {category_name: [{channel_id, channel_name}, ...]}
         self.categories = {}
 
     async def on_ready(self):
@@ -31,6 +30,15 @@ class Guideon(commands.Bot):
         logging.info(f"Logged in as {self.user} (ID: {self.user.id})")
         logging.info(f"Connected to guild: {self.guild.name} (ID: {self.guild.id})")
 
+
+    async def delete_category(self, category):
+        if category is None:
+            logging.error("Category not found.")
+            return
+        await category.delete()
+        if category.name in self.categories:
+            del self.categories[category.name]
+        logging.info(f"Deleted category: {category.name} (ID: {category.id})")
 
     async def delete_channel(self, channel):
         if channel is None:
