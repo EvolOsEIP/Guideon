@@ -13,6 +13,11 @@ load_dotenv()
 GUILD_ID = int(os.getenv("GUILD_ID"))
 BOT_KEY = os.getenv("BOT_KEY")
 
+# Colors constants for embed messages
+ERROR = discord.Color.red()
+SUCCESS = discord.Color.green()
+INFO = discord.Color.blue()
+
 # Set up logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
@@ -43,8 +48,16 @@ class Guideon(commands.Bot):
                 self.categories[category.name].append({"id": channel.id, "name": channel.name})
         logging.info(f"Initialized categories: {self.categories}")
 
-    async def send_embed_message(self, channel, title, description):
-        embed = discord.Embed(title=title, description=description, color=discord.Color.blue())
+    async def send_message(self, channel_id, title, description):
+        embed = discord.Embed(title=title, description=description, color=SUCCESS)
+        await channel.send(embed=embed)
+
+    async def send_error(self, channel_id, title, description):
+        embed = discord.Embed(title=title, description=description, color=ERROR)
+        await channel.send(embed=embed)
+
+    async def send_info(self, channel_id, title, description):
+        embed = discord.Embed(title=title, description=description, color=INFO)
         await channel.send(embed=embed)
 
     async def delete_category(self, category):
