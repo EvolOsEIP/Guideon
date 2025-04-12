@@ -20,6 +20,8 @@ class Guideon(commands.Bot):
     def __init__(self, intents, *args, **kwargs):
         super().__init__(command_prefix="!", intents=intents, *args, **kwargs)
         self.guild = None
+        # {category_name: [{channel_id, channel_name}, ...]}
+        self.categories = {}
 
     async def on_ready(self):
         self.guild = discord.utils.get(self.guilds, id=GUILD_ID)
@@ -29,12 +31,34 @@ class Guideon(commands.Bot):
         logging.info(f"Logged in as {self.user} (ID: {self.user.id})")
         logging.info(f"Connected to guild: {self.guild.name} (ID: {self.guild.id})")
 
+
+    async def delete_channel(self, channel):
+        if channel is None:
+            logging.error("Channel not found.")
+            return
+        await channel.delete()
+        category_name = next((name for name, channels in self.categories.items() if any(c["id"] == channel.id for c in channels)), None)
+        if category_name:
+            self.categories[category_name] = [c for c in self.categories[category_name] if c["id"] != channel.id]
+            if not self.categories[category_name]:
+                del self.categories[category_name]
+        logging.info(f"Deleted channel: {channel.name} (ID: {channel.id})")
+
     async def create_category(self, name):
         if self.guild is None:
             logging.error("Guild not found.")
             return
         category = await self.guild.create_category(name)
+        self.categories[name] = []
         return category
+
+    async def create_channel(self, name, category):
+        if self.guild is None:
+            logging.error("Guild not found.")
+            return
+        channel = await self.guild.create_text_channel(name, category=category)
+        self.categories[category.name].append({"id": channel.id, "name": channel.name})
+        return channel
 
 if __name__ == "__main__":
     intents = discord.Intents.default()
