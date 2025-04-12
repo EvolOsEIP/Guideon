@@ -29,6 +29,19 @@ class Guideon(commands.Bot):
             return
         logging.info(f"Logged in as {self.user} (ID: {self.user.id})")
         logging.info(f"Connected to guild: {self.guild.name} (ID: {self.guild.id})")
+        await self.init_category()
+
+    async def init_category(self):
+        if self.guild is None:
+            logging.error("Guild not found.")
+            return
+        logging.info("Initializing categories...")
+        for category in self.guild.categories:
+            if category.name not in self.categories:
+                self.categories[category.name] = []
+            for channel in category.channels:
+                self.categories[category.name].append({"id": channel.id, "name": channel.name})
+        logging.info(f"Initialized categories: {self.categories}")
 
     async def send_embed_message(self, channel, title, description):
         embed = discord.Embed(title=title, description=description, color=discord.Color.blue())
