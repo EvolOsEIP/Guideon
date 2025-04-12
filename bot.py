@@ -30,6 +30,9 @@ class Guideon(commands.Bot):
         logging.info(f"Logged in as {self.user} (ID: {self.user.id})")
         logging.info(f"Connected to guild: {self.guild.name} (ID: {self.guild.id})")
 
+    async def send_embed_message(self, channel, title, description):
+        embed = discord.Embed(title=title, description=description, color=discord.Color.blue())
+        await channel.send(embed=embed)
 
     async def delete_category(self, category):
         if category is None:
